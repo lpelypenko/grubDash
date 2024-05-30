@@ -145,16 +145,16 @@ function read(req, res) {
 }
 
 function update(req, res) {
-  const foundDish = res.locals.dish;
+  const foundOrder = res.locals.order;
 
-  const { data: { name, description, price, image_url } = {} } = req.body;
+  const { data: { deliverTo, mobileNumber, status, dishes } = {} } = req.body;
 
-  foundDish.name = name;
-  foundDish.description = description;
-  foundDish.price = price;
-  foundDish.image_url = image_url;
+  foundOrder.deliverTo = deliverTo;
+  foundOrder.mobileNumber = mobileNumber;
+  foundOrder.status = status;
+  foundOrder.dishes = dishes;
 
-  res.json({ data: foundDish });
+  res.json({ data: foundOrder });
 }
 
 /**
