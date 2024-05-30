@@ -55,14 +55,35 @@ function bodyDataHasNotEmpty(propertyName) {
   };
 }
 
-function priceIsValidNumber(req, res, next) {
-  const { data: { price } = {} } = req.body;
-  if (!Number.isInteger(price) || price <= 0) {
+function dishesPropertyValid(req, res, next) {
+  const { data: { dishes } = [] } = req.body;
+  console.log("dishes", dishes.length);
+  if (!dishes || !Array.isArray(dishes) || dishes.length == 0) {
     return next({
       status: 400,
-      message: "order must have a price that is an integer greater than 0",
+      message: "Order must include at least one dish",
     });
   }
+  res.locals.dishes = dishes;
+  next();
+}
+
+function dishesQtyPropertyValid(req, res, next) {
+  let index = 0;
+  for (const dish of res.locals.dishes) {
+    if (
+      !dish.hasOwnProperty("quantity") ||
+      !Number.isInteger(dish.quantity) ||
+      Number(dish.quantity) <= 0
+    ) {
+      return next({
+        status: 400,
+        message: `dish ${index} must have a quantity that is an integer greater than 0`,
+      });
+    }
+    index++;
+  }
+
   next();
 }
 
@@ -80,7 +101,6 @@ function idInRouteIsSameAsInBody(req, res, next) {
 
 function statusPropertyIsValid(req, res, next) {
   const { data: { status } = {} } = req.body;
-  const order = res.locals.order;
   const validStatus = ["pending", "preparing", "out-for-delivery", "delivered"];
   if (status && validStatus.includes(status)) {
     return next();
@@ -105,7 +125,8 @@ function deliveredStatusCannotBeChanged(req, res, next) {
 
 function onlyPendingCanBeDeleted(req, res, next) {
   const order = res.locals.order;
-  if (order == "pending") {
+  console.log("onlyPendingCanBeDeleted:", order);
+  if (order.status === "pending") {
     return next();
   }
   next({
@@ -157,7 +178,8 @@ module.exports = {
     bodyDataHas("dishes"),
     bodyDataHasNotEmpty("deliverTo"),
     bodyDataHasNotEmpty("mobileNumber"),
-    priceIsValidNumber,
+    dishesPropertyValid,
+    dishesQtyPropertyValid,
     create,
   ],
   list,
@@ -166,15 +188,14 @@ module.exports = {
     orderExists,
     deliveredStatusCannotBeChanged,
     statusPropertyIsValid,
-    bodyDataHas("name"),
-    bodyDataHas("description"),
-    bodyDataHas("price"),
-    bodyDataHas("image_url"),
-    bodyDataHasNotEmpty("name"),
-    bodyDataHasNotEmpty("description"),
-    bodyDataHasNotEmpty("image_url"),
+    bodyDataHas("deliverTo"),
+    bodyDataHas("mobileNumber"),
+    bodyDataHas("dishes"),
+    bodyDataHasNotEmpty("deliverTo"),
+    bodyDataHasNotEmpty("mobileNumber"),
+    dishesPropertyValid,
+    dishesQtyPropertyValid,
     idInRouteIsSameAsInBody,
-    priceIsValidNumber,
     update,
   ],
   delete: [orderExists, onlyPendingCanBeDeleted, destroy],
