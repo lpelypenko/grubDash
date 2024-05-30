@@ -9,7 +9,6 @@ const nextId = require("../utils/nextId");
 function create(req, res) {
   const { data: { name, description, price, image_url } = {} } = req.body;
   const newId = nextId();
-  // console.log("newId:", newId);
   const newDish = {
     id: newId,
     name,
@@ -66,9 +65,7 @@ function idInRouteIsSameAsInBody(req, res, next) {
 
 function dishExists(req, res, next) {
   const { dishId } = req.params;
-  //console.log("reseived dishId:", dishId);
   const foundDish = dishes.find((dish) => dish.id === dishId);
-  //console.log("foundDish:", foundDish);
   if (foundDish) {
     res.locals.dish = foundDish;
     return next();
@@ -89,7 +86,6 @@ function read(req, res) {
 }
 
 function update(req, res) {
-  console.log("update");
   const foundDish = res.locals.dish;
 
   const { data: { name, description, price, image_url } = {} } = req.body;

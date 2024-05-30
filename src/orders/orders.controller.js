@@ -9,7 +9,6 @@ const nextId = require("../utils/nextId");
 function orderExists(req, res, next) {
   const { orderId } = req.params;
   const foundOrder = orders.find((order) => order.id === orderId);
-  console.log("foundOrder:", foundOrder);
   if (foundOrder) {
     res.locals.order = foundOrder;
     return next();
@@ -23,7 +22,6 @@ function orderExists(req, res, next) {
 function create(req, res) {
   const { data: { deliverTo, mobileNumber, status, dishes } = {} } = req.body;
   const newId = nextId();
-  // console.log("newId:", newId);
   const newOrder = {
     id: newId,
     deliverTo,
@@ -57,7 +55,6 @@ function bodyDataHasNotEmpty(propertyName) {
 
 function dishesPropertyValid(req, res, next) {
   const { data: { dishes } = [] } = req.body;
-  console.log("dishes", dishes.length);
   if (!dishes || !Array.isArray(dishes) || dishes.length == 0) {
     return next({
       status: 400,
@@ -125,7 +122,6 @@ function deliveredStatusCannotBeChanged(req, res, next) {
 
 function onlyPendingCanBeDeleted(req, res, next) {
   const order = res.locals.order;
-  console.log("onlyPendingCanBeDeleted:", order);
   if (order.status === "pending") {
     return next();
   }
